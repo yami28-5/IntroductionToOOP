@@ -52,11 +52,12 @@ public:
 	{
 		cout << "Destructor:\t\t" << this << endl;
 	}
-	void operator=(const Point& other)
+	Point& operator=(const Point& other)
 	{
 		this->x = other.x;
 		this->y = other.y;
 		cout << "CopyAssingnment:\t\t" << endl;
+		return *this;
 	}
 
 	double distance(const Point& other)
