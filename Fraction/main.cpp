@@ -90,10 +90,11 @@ public:
 	}
 	//            METHOUDS:
 
-	void to_improper()
+	Fraction& to_improper()
 	{
 		numerator += integer * denominator;
 		integer = 0;
+		return *this;
 	}
 	Fraction& to_proper()
 	{
