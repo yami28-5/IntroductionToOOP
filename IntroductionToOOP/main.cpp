@@ -172,10 +172,6 @@ void main()
 	Point B(7, 8);
 	Point C = A + B;
 	C.Print();
-
-
-
-
 #endif // OPERATORS_CHECK
 
 }

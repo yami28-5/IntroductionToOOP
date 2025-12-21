@@ -8,8 +8,8 @@ using std::endl;
 #define delimiter "\n--------------------\n"
 
 class Fraction;
-Fraction operator+(Fraction left, Fraction right);
-Fraction operator-(Fraction left, Fraction right);
+Fraction operator+(const Fraction left, const Fraction right);
+Fraction operator-(const Fraction& left, const Fraction& right);
 Fraction operator*(Fraction left, Fraction right);
 Fraction operator/(const Fraction& left, const Fraction& right);
 
@@ -124,11 +124,11 @@ public:
 	{
 		return *this = *this + other;
 	}
-
 	Fraction& operator-=(const Fraction& other)
 	{
 		return *this = *this - other;
 	}
+
 	Fraction& operator*=(const Fraction& other)
 	{
 		return *this = *this*other;
@@ -162,6 +162,7 @@ public:
 		this->integer--;
 		return old;
 	}
+	//				Type-cast operators:
 	explicit operator int()const
 	{
 		return integer + numerator / denominator;
@@ -223,24 +224,13 @@ public:
 };
 Fraction operator+(Fraction left, Fraction right)
 {
-	left.to_improper();
-	right.to_improper();
-
-	return Fraction(
-		left.get_numerator() * right.get_denominator() + right.get_numerator() * left.get_denominator(),
-		left.get_denominator() * right.get_denominator()
-	).to_proper().reduce();
+	left.to_improper(); right.to_improper();
+    return Fraction(left.get_numerator() * right.get_denominator() + right.get_numerator() * left.get_denominator(), left.get_denominator() * right.get_denominator()).to_proper().reduce();
 }
-
-Fraction operator-(Fraction left, Fraction right)
+Fraction operator-(Fraction left, Fraction right) 
 {
-	left.to_improper();
-	right.to_improper();
-
-	return Fraction(
-		left.get_numerator() * right.get_denominator() - right.get_numerator() * left.get_denominator(),
-		left.get_denominator() * right.get_denominator()
-	).to_proper().reduce();
+	left.to_improper(); right.to_improper();
+	return Fraction(left.get_numerator() * right.get_denominator() - right.get_numerator() * left.get_denominator(), left.get_denominator() * right.get_denominator()).to_proper().reduce();
 }
 Fraction operator*(Fraction left, Fraction right)
 {
@@ -453,10 +443,11 @@ void main()
 	  
 
 #endif // HOME_WORK
-   Fraction A(2, 3, 5);
+   Fraction A(2, 33, 4);
+   cout << A << endl;
    int a = (int)A;
    cout << a << endl;
-   Fraction B(3.5);
-   double b = (double)B;
+
+   double b = (double)A;
    cout << b << endl;
 }
