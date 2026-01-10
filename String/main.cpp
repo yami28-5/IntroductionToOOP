@@ -1,185 +1,216 @@
-﻿#include<Windows.h>
-#include<iostream>
+﻿#include<iostream>
 using std::cin;
 using std::cout;
 using std::endl;
 
 #define tab "\t"
-#define delimiter "\n---\n"
+#define delimiter "\n----------------------------------\n"
 
-int StringLength(const char str[]);
-char* ToUpper(char str[]);
-char* ToLower(char str[]);
-void shrink(char str[]);
-bool is_palindrome(const char str[]);
-bool is_int_number(const char str[]);
-int to_int_number(const char str[]);
-bool is_bin_number(const char str[]);
-int bin_to_dec(const char str[]);
+class String
+{
+	int size;
+	char* str;
+public:
+	int get_size()const
+	{
+		return size;
+	}
+	const char* get_str()const
+	{
+		return str;
+	}
+	char* get_str()
+	{
+		return str;
+	}
+
+	//				Constructors:
+	explicit String(int size = 80)
+	{
+		this->size = size;
+		this->str = new char[size] {};
+		cout << "DefConstructor:\t" << this << endl;
+	}
+	String(const char str[])
+	{
+		this->size = strlen(str) + 1;
+		this->str = new char[size] {};
+		for (int i = 0; str[i]; i++)this->str[i] = str[i];
+		cout << "Constructor:\t" << this << endl;
+	}
+	String(const String& other)
+	{
+		this->size = other.size;
+		this->str = new char[size] {};
+		for (int i = 0; i < size; i++)this->str[i] = other.str[i];
+		cout << "CopyConstructor:" << this << endl;
+	}
+	String(String&& other)
+	{
+		this->size = other.size;
+		this->str = other.str;
+
+		//Обязательно нужно обнулить копируемый объект:
+		other.size = 0;
+		other.str = nullptr;	//nullptr - это указатель на '0' (указатель в никуда).
+		//nullptr - это физический '0' (нулевая ячейка памяти).
+        //это предотвращает удаление динамической памяти деструкто
+
+		cout << "MoveConstructor:" << this << endl;
+	}
+	~String()
+	{
+		delete[] str;
+		cout << "Destructor:\t" << this << endl;
+	}
+
+	//				Operators
+	String& operator=(const String& other)
+	{
+		if (this == &other)return *this;
+		delete[] this->str;
+
+		this->size = other.size;
+		this->str = new char[size] {};
+		for (int i = 0; i < size; i++)this->str[i] = other.str[i];
+		cout << "CopyAssignment:\t" << this << endl;
+		return *this;
+	}
+	String& operator=(String&& other)
+	{
+		if (this == &other)return *this;
+		delete[] this->str;
+
+		this->size = other.size;
+		this->str = other.str;
+
+		other.size = 0;
+		other.str = nullptr;
+
+		cout << "MoveAssignment:\t" << this << endl;
+		return *this;
+	}
+
+	char operator[](int i)const
+	{
+		return str[i];
+	}
+	char& operator[](int i)
+	{
+		return str[i];
+	}
+
+
+	//				Methods:
+	void print()const
+	{
+		cout << "Size:\t" << size << endl;
+		cout << "Str:\t" << str << endl;
+	}
+};
+
+String operator+(const String& left, const String& right)
+{
+	//Сложение строк - Конкатенация строк:
+	String result(left.get_size() + right.get_size() - 1);
+	const double PI = 3.14;
+	//PI = 2.7;
+	for (int i = 0; i < left.get_size(); i++)
+		result[i] = left[i];
+	//result.get_str()[i] = left.get_str()[i];
+	for (int i = 0; i < right.get_size(); i++)
+		result[i + left.get_size() - 1] = right[i];
+	//result.get_str()[i + left.get_size() - 1] = right.get_str()[i];
+	return result;
+	//0x00e12640
+	//r-value reference
+}
+
+std::ostream& operator<<(std::ostream& os, const String& obj)
+{
+	return os << obj.get_str();
+}
+
+//#define BASE_CHECK
+#define OPERATORS_CHECK
+//#define CALLING_CONSTRUCTORS
 
 void main()
 {
-    setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "");
 
-    const int SIZE = 256;
-    char str[SIZE];
+#ifdef BASE_CHECK
+	String str(12);	//Conversion from 'int' to 'String'
+	//str.print();
+	cout << str << endl;
 
-    cout << "Введите строку: ";
-    SetConsoleCP(1251);
-    cin.getline(str, SIZE);
-    SetConsoleCP(866);
+	String str1 = "Hello";
+	str1 = str1;
+	str1.print();
+	cout << str1 << endl;
 
-    cout << delimiter << "Исходная строка: " << str << endl;
-    cout << "Длина строки: " << StringLength(str) << endl;
+	String str2 = str1;		//Copy constructor
+	cout << str2 << endl;
 
-    cout << "В верхнем регистре: " << ToUpper(str) << endl;
-    cout << "В нижнем регистре: " << ToLower(str) << endl;
+	String str3;
+	str3 = str2;			//CopyAssignment
+	cout << str3 << endl;
+#endif // BASE_CHECK
 
-    shrink(str);
-    cout << "Без лишних пробелов: " << str << endl;
+#ifdef OPERATORS_CHECK
+	int a = 2;
+	int b = 3;
+	a + b;
+	String str1 = "Hello";
+	String str2 = "World";
 
-    cout << "Палиндром: " << (is_palindrome(str) ? "да" : "нет") << endl;
-    cout << "Является целым числом: " << (is_int_number(str) ? "да" : "нет") << endl;
+	cout << delimiter << endl;
+	//String str3 = str1 + str2;	//MoveConstructor
+	String str3;
+	str3 = str1 + str2;				//MoveAssignment
+	cout << delimiter << endl;
 
-    if (is_int_number(str)) {
-        cout << "Числовое значение: " << to_int_number(str) << endl;
-    }
+	cout << str3 << endl;
+#endif // OPERATORS_CHECK
 
-    cout << "Является двоичным числом: " << (is_bin_number(str) ? "да" : "нет") << endl;
+#ifdef CALLING_CONSTRUCTORS
+	String str1;		
+	str1.print();
 
-    if (is_bin_number(str)) {
-        cout << "Десятичное значение: " << bin_to_dec(str) << endl;
-    }
-}
+	String str2(5);		
+	str2.print();
 
-int StringLength(const char str[]) {
-    int i = 0;
-    for (; str[i]; i++);
-    return i;
-}
+	String str3 = "Hello";	//Singl-argument constructor 'const char*'
+	str3.print();
 
-char* ToUpper(char str[]) {
-    for (int i = 0; str[i]; i++) {
-        if (str[i] >= 'a' && str[i] <= 'z')
-            str[i] -= 32;
-        else if (str[i] >= 'а' && str[i] <= 'я')
-            str[i] -= 32;
-        else if (str[i] == 'ё')
-            str[i] = 'Ё';
-    }
-    return str;
-}
+	String str4();		//NOT Default constructor - это выражение НЕ вызывает никакой конструктор,
+	//и НЕ создает объект, это выражение объявляет функцию, 
+	//которая ничего НЕ принимает, и возвращает значене типа 'String'
+//str4.print();		//'str4' НЕ является объектом.
+//Для того чтобы явно вызвать конструктор по умолчанию, можно использовать {} следующим образом:
+	String str5{};		//Явный вызов конструктора по умолчанию
+	str5.print();
+	//НО, с фигурными скобками нужно быть ОЧЕНЬ ОСТОРОЖНЫМ
+	//Фигурные скобки как правило используются в контейнерах.
 
-char* ToLower(char str[]) {
-    for (int i = 0; str[i]; i++) {
-        if (str[i] >= 'A' && str[i] <= 'Z')
-            str[i] += 32;
-        else if (str[i] >= 'А' && str[i] <= 'Я')
-            str[i] += 32;
-        else if (str[i] == 'Ё')
-            str[i] = 'ё';
-    }
-    return str;
-}
+	String str6{ 7 };	//Так же как 'str2' вызывает конструктор с одним параметром типа 'int'
+	str6.print();
+	 
+	String str7("World");         //Так же как и 'str3' вызывает конструктор с одним параметром типа 'const char*'
+	String str8{ "World" };       //Так же как и 'str3' вызывает конструктор с одним параметром типа 'const char*'
 
-void shrink(char str[]) {
-    int i = 0, j = 0;
-    bool space_flag = false;
+	String str9 = str3;	//CopyConstructor
+	String str10(str9);	//CopyConstrcutor
+	String str11{ str9 };//CopyConstructor
 
-    while (str[i] == ' ') i++;
+	String str12 = str3 + str7;	//MoveConstructor
+	str12.print();
 
-    while (str[i]) {
-        if (str[i] != ' ') {
-            str[j++] = str[i++];
-            space_flag = false;
-        }
-        else {
-            if (!space_flag) {
-                str[j++] = ' ';
-                space_flag = true;
-            }
-            i++;
-        }
-    }
+	String str13(str3 + str7);	//MoveConstructor
+	str13.print();
 
-    if (j > 0 && str[j - 1] == ' ') {
-        j--;
-    }
+	String str14{ str3 + str7 };//MoveConstructor
+	str14.print();
+#endif // CALLING_CONSTRUCTORS
 
-    str[j] = '\0';
-}
-
-bool is_palindrome(const char str[]) {
-    int len = StringLength(str);
-    for (int i = 0; i < len / 2; i++) {
-        char left = str[i];
-        char right = str[len - 1 - i];
-
-        if (left >= 'A' && left <= 'Z') left += 32;
-        if (right >= 'A' && right <= 'Z') right += 32;
-
-        if (left != right) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool is_int_number(const char str[]) {
-    if (!str || !str[0]) return false;
-
-    int i = 0;
-    if (str[0] == '-' || str[0] == '+') i++;
-
-    for (; str[i]; i++) {
-        if (str[i] < '0' || str[i] > '9') return false;
-    }
-    return true;
-}
-
-int to_int_number(const char str[]) {
-    if (!is_int_number(str)) return 0;
-
-    int result = 0;
-    int sign = 1;
-    int i = 0;
-
-    if (str[0] == '-') {
-        sign = -1;
-        i++;
-    }
-    else if (str[0] == '+') {
-        i++;
-    }
-
-    for (; str[i]; i++) {
-        result = result * 10 + (str[i] - '0');
-    }
-
-    return result * sign;
-}
-
-bool is_bin_number(const char str[]) {
-    if (!str || !str[0]) return false;
-
-    for (int i = 0; str[i]; i++) {
-        if (str[i] != '0' && str[i] != '1') return false;
-    }
-    return true;
-}
-
-int bin_to_dec(const char str[]) {
-    if (!is_bin_number(str)) return 0;
-
-    int result = 0;
-    int len = StringLength(str);
-    int power = 1;
-
-    for (int i = len - 1; i >= 0; i--) {
-        if (str[i] == '1') {
-            result += power;
-        }
-        power *= 2;
-    }
-    return result;
 }
